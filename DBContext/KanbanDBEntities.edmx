@@ -1,0 +1,366 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="KanbanDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="cardlist">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="numeric" Precision="18" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="color" Type="nvarchar" MaxLength="15" Nullable="false" />
+          <Property Name="orders" Type="tinyint" Nullable="false" />
+          <Property Name="created_at" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="projectId" Type="numeric" Precision="18" Scale="0" Nullable="false" />
+        </EntityType>
+        <EntityType Name="cards">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="numeric" Precision="18" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="description" Type="varchar(max)" />
+          <Property Name="cardListId" Type="numeric" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="parent" Type="char" MaxLength="1" Nullable="false" />
+          <Property Name="isExpanded" Type="bit" Nullable="false" />
+          <Property Name="orders" Type="int" Nullable="false" />
+          <Property Name="created_at" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="projects">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="numeric" Precision="18" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="created_at" Type="nvarchar" MaxLength="100" Nullable="false" />
+        </EntityType>
+        <EntityType Name="subcardlist">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="numeric" Precision="18" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="cardlistId" Type="numeric" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="isExpanded" Type="bit" Nullable="false" />
+          <Property Name="orders" Type="int" Nullable="false" />
+          <Property Name="created_at" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="tasks">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="numeric" Precision="18" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="description" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="isCompleted" Type="bit" Nullable="false" />
+          <Property Name="cardId" Type="numeric" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="orders" Type="int" Nullable="false" />
+          <Property Name="created_at" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_cardlist">
+          <End Role="cardlist" Type="Self.cardlist" Multiplicity="1" />
+          <End Role="subcardlist" Type="Self.subcardlist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="cardlist">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="subcardlist">
+              <PropertyRef Name="cardlistId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_cardsId">
+          <End Role="cards" Type="Self.cards" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="tasks" Type="Self.tasks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="cards">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tasks">
+              <PropertyRef Name="cardId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_projectscardlist">
+          <End Role="projects" Type="Self.projects" Multiplicity="1" />
+          <End Role="cardlist" Type="Self.cardlist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="cardlist">
+              <PropertyRef Name="projectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="KanbanDBModelStoreContainer">
+          <EntitySet Name="cardlist" EntityType="Self.cardlist" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="cards" EntityType="Self.cards" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="projects" EntityType="Self.projects" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="subcardlist" EntityType="Self.subcardlist" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tasks" EntityType="Self.tasks" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_cardlist" Association="Self.FK_cardlist">
+            <End Role="cardlist" EntitySet="cardlist" />
+            <End Role="subcardlist" EntitySet="subcardlist" />
+          </AssociationSet>
+          <AssociationSet Name="FK_cardsId" Association="Self.FK_cardsId">
+            <End Role="cards" EntitySet="cards" />
+            <End Role="tasks" EntitySet="tasks" />
+          </AssociationSet>
+          <AssociationSet Name="FK_projectscardlist" Association="Self.FK_projectscardlist">
+            <End Role="projects" EntitySet="projects" />
+            <End Role="cardlist" EntitySet="cardlist" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="KanbanDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="cardlist">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Decimal" Precision="18" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="color" Type="String" MaxLength="15" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="orders" Type="Byte" Nullable="false" />
+          <Property Name="created_at" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="projectId" Type="Decimal" Precision="18" Scale="0" Nullable="false" />
+          <NavigationProperty Name="cards" Relationship="Self.FK_cardlist" FromRole="cardlist" ToRole="cards" />
+          <NavigationProperty Name="subcardlist" Relationship="Self.FK_cardlistsId" FromRole="cardlist" ToRole="subcardlist" />
+          <NavigationProperty Name="projects" Relationship="Self.FK_projectscardlist" FromRole="cardlist" ToRole="projects" />
+        </EntityType>
+        <EntityType Name="cards">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Decimal" Precision="18" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="cardListId" Type="Decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="isExpanded" Type="Boolean" Nullable="false" />
+          <Property Name="orders" Type="Int32" Nullable="false" />
+          <Property Name="created_at" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="tasks" Relationship="Self.FK_cardsId" FromRole="cards" ToRole="tasks" />
+          <Property Name="parent" Type="String" Nullable="false" MaxLength="1" FixedLength="true" Unicode="false" />
+        </EntityType>
+        <EntityType Name="projects">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Decimal" Precision="18" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="created_at" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="cardlist" Relationship="Self.FK_projectscardlist" FromRole="projects" ToRole="cardlist" />
+        </EntityType>
+        <EntityType Name="subcardlist">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Decimal" Precision="18" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="cardlistId" Type="Decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="isExpanded" Type="Boolean" Nullable="false" />
+          <Property Name="orders" Type="Int32" Nullable="false" />
+          <Property Name="created_at" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="cardlist" Relationship="Self.FK_cardlistsId" FromRole="subcardlist" ToRole="cardlist" />
+          <NavigationProperty Name="cards" Relationship="Self.FK_subcardlist" FromRole="subcardlist" ToRole="cards" />
+        </EntityType>
+        <EntityType Name="tasks">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Decimal" Precision="18" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="description" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="isCompleted" Type="Boolean" Nullable="false" />
+          <Property Name="cardId" Type="Decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="orders" Type="Int32" Nullable="false" />
+          <Property Name="created_at" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="cards" Relationship="Self.FK_cardsId" FromRole="tasks" ToRole="cards" />
+        </EntityType>
+        <Association Name="FK_cardlist">
+          <End Role="cardlist" Type="Self.cardlist" Multiplicity="1" />
+          <End Role="cards" Type="Self.cards" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="cardlist">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="cards">
+              <PropertyRef Name="cardListId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_cardlistsId">
+          <End Role="cardlist" Type="Self.cardlist" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="subcardlist" Type="Self.subcardlist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="cardlist">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="subcardlist">
+              <PropertyRef Name="cardlistId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_projectscardlist">
+          <End Role="projects" Type="Self.projects" Multiplicity="1" />
+          <End Role="cardlist" Type="Self.cardlist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="projects">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="cardlist">
+              <PropertyRef Name="projectId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_cardsId">
+          <End Role="cards" Type="Self.cards" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="tasks" Type="Self.tasks" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="cards">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="tasks">
+              <PropertyRef Name="cardId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_subcardlist">
+          <End Role="subcardlist" Type="Self.subcardlist" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="cards" Type="Self.cards" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="subcardlist">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="cards">
+              <PropertyRef Name="cardListId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="KanbanDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="cardlist" EntityType="Self.cardlist" />
+          <EntitySet Name="cards" EntityType="Self.cards" />
+          <EntitySet Name="projects" EntityType="Self.projects" />
+          <EntitySet Name="subcardlist" EntityType="Self.subcardlist" />
+          <EntitySet Name="tasks" EntityType="Self.tasks" />
+          <AssociationSet Name="FK_cardlist" Association="Self.FK_cardlist">
+            <End Role="cardlist" EntitySet="cardlist" />
+            <End Role="cards" EntitySet="cards" />
+          </AssociationSet>
+          <AssociationSet Name="FK_cardlistsId" Association="Self.FK_cardlistsId">
+            <End Role="cardlist" EntitySet="cardlist" />
+            <End Role="subcardlist" EntitySet="subcardlist" />
+          </AssociationSet>
+          <AssociationSet Name="FK_projectscardlist" Association="Self.FK_projectscardlist">
+            <End Role="projects" EntitySet="projects" />
+            <End Role="cardlist" EntitySet="cardlist" />
+          </AssociationSet>
+          <AssociationSet Name="FK_cardsId" Association="Self.FK_cardsId">
+            <End Role="cards" EntitySet="cards" />
+            <End Role="tasks" EntitySet="tasks" />
+          </AssociationSet>
+          <AssociationSet Name="FK_subcardlist" Association="Self.FK_subcardlist">
+            <End Role="subcardlist" EntitySet="subcardlist" />
+            <End Role="cards" EntitySet="cards" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="KanbanDBModelStoreContainer" CdmEntityContainer="KanbanDBEntities">
+          <EntitySetMapping Name="cardlist">
+            <EntityTypeMapping TypeName="KanbanDBModel.cardlist">
+              <MappingFragment StoreEntitySet="cardlist">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="color" ColumnName="color" />
+                <ScalarProperty Name="orders" ColumnName="orders" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="projectId" ColumnName="projectId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="cards">
+            <EntityTypeMapping TypeName="KanbanDBModel.cards">
+              <MappingFragment StoreEntitySet="cards">
+                <ScalarProperty Name="parent" ColumnName="parent" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="cardListId" ColumnName="cardListId" />
+                <ScalarProperty Name="isExpanded" ColumnName="isExpanded" />
+                <ScalarProperty Name="orders" ColumnName="orders" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="projects">
+            <EntityTypeMapping TypeName="KanbanDBModel.projects">
+              <MappingFragment StoreEntitySet="projects">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="subcardlist">
+            <EntityTypeMapping TypeName="KanbanDBModel.subcardlist">
+              <MappingFragment StoreEntitySet="subcardlist">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="cardlistId" ColumnName="cardlistId" />
+                <ScalarProperty Name="isExpanded" ColumnName="isExpanded" />
+                <ScalarProperty Name="orders" ColumnName="orders" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tasks">
+            <EntityTypeMapping TypeName="KanbanDBModel.tasks">
+              <MappingFragment StoreEntitySet="tasks">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="isCompleted" ColumnName="isCompleted" />
+                <ScalarProperty Name="cardId" ColumnName="cardId" />
+                <ScalarProperty Name="orders" ColumnName="orders" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
