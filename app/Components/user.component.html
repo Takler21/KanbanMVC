@@ -1,0 +1,108 @@
+﻿<div class='panel panel-primary'>
+    <div class='panel-heading'>
+        Tabla Usuarios
+    </div>
+    <div class='panel-body'>
+        <ng-template ngFor let-key [ngForOf]="prueba" let-keyIndex="index">
+            {{key}}
+        </ng-template>
+        {{hola}}
+        <!--{{ids[0]['NameDepart']}}-->
+        <div class='table-responsive'>
+            <div class="alert alert-info" role="alert" *ngIf="indLoading">
+                <img src="../../images/loading.gif" width="32" height="32" /> Loading...
+            </div>
+            <div *ngIf='users && users.length==0' class="alert alert-info" role="alert">
+                No record found!
+            </div>
+            <table class='table table-striped' *ngIf='users && users.length'>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Genero</th>
+                        <th>Departamento</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let user of users">
+                        <td>{{user.FirstName}}</td>
+                        <td>{{user.LastName}}</td>
+                        <td>{{user.Gender}}</td>
+                        <td>{{user.Id_Depart}}</td>
+                        <td>
+                            <button title="Edit" class="btn btn-primary" (click)="editUser(user.Id)">Editar</button>
+                            <button title="Delete" class="btn btn-danger" (click)="deleteUser(user.Id)">Borrar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div>
+            </div>
+            <div style="padding-bottom:10px">
+                <button class="btn btn-primary" (click)="addUser()">Agregar</button>
+            </div>
+        </div>
+        <div *ngIf="msg" role="alert" class="alert alert-info alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            <span class="sr-only">Error:</span>
+            {{msg}}
+        </div>
+    </div>
+</div>
+
+<modal #modal>
+    <form novalidate (ngSubmit)="onSubmit(userFrm)" [formGroup]="userFrm">
+        <modal-header [show-close]="true">
+            <h4 class="modal-title">{{modalTitle}}</h4>
+        </modal-header>
+        <modal-body>
+
+            <div class="form-group">
+                <div>
+                    <span>Nombre*</span>
+                    <input type="text" class="form-control" placeholder="Nombre" formControlName="FirstName">
+                </div>
+                <div>
+                    <span>Apellido</span>
+                    <input type="text" class="form-control" placeholder="Apellido" formControlName="LastName">
+                </div>
+                <div>
+                    <span>Género*</span>
+                    <select formControlName="Gender" class="form-control">
+                        <option>Varón</option>
+                        <option>Mujer</option>
+                    </select>
+                </div>
+                <!--<div>
+                    <span>Departamento</span>
+                    <input type="text" class="form-control" placeholder="Departamento" formControlName="Id_Depart">
+                </div>-->
+                <div>
+                    <!--Me parece que esta mal planteado-->
+                    <span>Departamento</span>
+                    <select *ngIf="ids && keysID" class="form-control" placeholder="Departamento" formControlName="Id_Depart">
+                        <option value="">Ninguno</option>
+                        <ng-container *ngFor="let dep of keysID">
+                            <option *ngIf="ids[dep]"  [value]="dep">{{ids[dep]['NameDepart']}}</option>
+                        </ng-container>
+                    </select>
+                </div>
+            </div>
+            <div *ngIf="msg2" role="alert" class="alert alert-info alert-dismissible" style="margin-bottom:0">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                {{msg2}}
+            </div>
+        </modal-body>
+        <modal-footer>
+            <div>
+                <a class="btn btn-default" (click)="modal.dismiss()">Cancel</a>
+                <button type="submit" [disabled]="userFrm.invalid" class="btn btn-primary">{{modalBtnTitle}}</button>
+            </div>
+        </modal-footer>
+    </form>
+</modal>

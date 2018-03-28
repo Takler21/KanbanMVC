@@ -1,0 +1,98 @@
+﻿<header class="page-header">
+    <h1>
+        Kanban Board
+    </h1>
+    <div class="changeProjects">
+    
+        <div style="width:100%; display: flex">
+            <button type="button" class="btn btn-default btn-xs inline" (click)="showAddProject()">
+                <i class="fa fa-plus"></i>
+            </button>
+
+            <select *ngIf="projects" class="form-control" [(ngModel)]="project" name="Project" (ngModelChange)="onChange($event)" style="width: inherit">
+                <option *ngFor="let project of projects" [ngValue]="project">{{project.name}}</option>
+            </select>
+        </div>
+    </div>
+
+
+<br />
+<div class="fullScreen" *ngIf="toShowAddProject" (click)="cancelAddProject()">
+</div>
+<div class="fullScreentransparent" *ngIf="toShowAddProject">
+    <div class="panel panel-default createCard well">
+        <div class="panel-heading">
+            <h4 class="createTitle">
+                New Project
+                <div class="pull-right link" (click)="cancelAddProject()">
+                    <i class="fa fa-window-close"></i>
+                </div>
+            </h4>
+        </div>
+        <form #form="ngForm">
+            <div class="form-group formfields">
+                <label for="projectname">Name</label>
+                <input name="name" type="text" class="form-control" id="projectname" placeholder="Project name" [(ngModel)]="projectname" required>
+                <!--<input type="text" class="form-control" id="taskdescription" placeholder="description" [(ngModel)]="carddescription">-->
+            </div>
+            <div class="text-center">
+                <button type="button" class="btn btn-primary" [disabled]="!form.valid">CREATE</button><!--(click)="saveAddProject()"-->
+            </div>
+        </form>
+    </div>
+</div>
+    </header>
+
+
+<h3>
+    <button type="button" class="btn btn-default btn-xs inline" (click)="showAddCardList()">
+        <i class="fa fa-plus"></i>
+    </button>
+    Add Card list.
+    <button style="float:right; height:2.5em" type="button" class="btn btn-default btn-xs inline"><!-- (click)="deleteProject()"-->
+        <strong>Delete Project</strong> &emsp;<span class="fa fa-trash"></span>
+    </button>
+</h3>
+
+
+<!--Modal para agragar card lists-->
+<div class="fullScreen" *ngIf="toShowAddCardList" (click)="cancelAddCardList()">
+</div>
+<div class="fullScreentransparent" *ngIf="toShowAddCardList">
+    <div class="panel panel-default createCard well">
+        <div class="panel-heading">
+            <h4 class="createTitle">
+                New Card list
+                <div class="pull-right link" (click)="cancelAddCardList()">
+                    <i class="fa fa-window-close"></i>
+                </div>
+            </h4>
+        </div>
+        <form #form="ngForm">
+            <div class="form-group formfields">
+                <label for="cardlistname">Name</label>
+                <input type="text" class="form-control" id="cardlistname" placeholder="Card list name" [(ngModel)]="cardlistname" name="name" #zip="ngModel" required>
+
+                <label for="cardlistcolor">Color</label>
+                <select class="form-control" id="cardlistcolor" placeholder="Card list color" [(ngModel)]="cardlistcolor" required name="color" #zip="ngModel">
+                    <option *ngFor="let color of css_color_names" [ngValue]="color">{{color}}</option>
+                </select>
+                <label for="cardlistorder">Order</label>
+                <input type="number" class="form-control" id="cardlistorder" placeholder="Card list order" [(ngModel)]="cardlistorder" min="0" [max]="cardLists.length" pattern="" required name="order" #zip="ngModel">
+            </div>
+            <!--<input type="text" class="form-control" id="taskdescription" placeholder="description" [(ngModel)]="carddescription">-->
+
+            <div class="text-center">
+                <button type="button" class="btn btn-primary" [disabled]="!form.valid">CREATE</button><!--(click)="saveAddCardList()"-->
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="board">
+    <div *ngFor="let cardList of cardLists" [style]="styles()">
+        <cardlist [item]="cardList">
+        </cardlist>
+    </div>
+</div>
+
