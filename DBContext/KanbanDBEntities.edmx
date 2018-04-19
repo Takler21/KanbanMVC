@@ -72,9 +72,7 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_cardsId">
-          <End Role="cards" Type="Self.cards" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
+          <End Role="cards" Type="Self.cards" Multiplicity="1" />
           <End Role="tasks" Type="Self.tasks" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="cards">
