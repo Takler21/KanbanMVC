@@ -1,6 +1,6 @@
 ﻿import { Injectable } from '@angular/core';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
-import { Observable } from 'rxjs/Rx';
+import { Observable, BehaviorSubject } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/catch';
@@ -10,6 +10,7 @@ import { IDepartment } from '../Models/department';
 @Injectable()
 export class UserService {
 
+    syncro = new BehaviorSubject(false);
     users: IUser[];
     departments: IDepartment[];
     constructor(private _http: Http) { }

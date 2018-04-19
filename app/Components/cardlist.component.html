@@ -5,13 +5,13 @@
             <span class="inline listTitle">
                 {{item.name}}
             </span>
-            <button *ngIf="!existSub" type="button" title="Crear card" class="btn btn-default btn-xs inline" (click)="showAddCard(item.Id)"> <!--(click)="showAddCard(item.$key)"-->
+            <button *ngIf="!existSub" type="button" title="Crear card" class="btn btn-default btn-xs inline" (click)="showAddCard(item.Id)"> <!--(click)="showAddCard(item.Id)"-->
                 <i class="fa fa-plus"></i>
             </button>
-            <button *ngIf="existSub || cardlistEmpty" style="background-color:red; color:white" type="button" title="Crear Sublist" class="btn btn-default btn-xs inline" (click)="showAddSubCardList()"> <!---->
+            <button *ngIf="existSub || (cards?.length < 1)" style="background-color:red; color:white" type="button" title="Crear Sublist" class="btn btn-default btn-xs inline" (click)="showAddSubCardList()"> <!---->
                 <i class="fa fa-plus"></i>
             </button>
-            <a style="float:right; color:black" class="fa fa-trash"></a>
+            <ng-content></ng-content>
         </div>
         <!--Aqui los div para cuando hay subcardlist y para cuando no, en el otro ejemplo 
             no dejaba pasar la carta al otro cardlist si estaba vacio, me imagino que se debera 
@@ -27,13 +27,13 @@
                 [dragData]="card"
                 [dragEnabled]="allowDragFunction(card)">
                 <card [item]="card">
-                    <span class="inline-block glyphicon glyphicon-remove link" style="color:red" ></span><!--(click)="deleteCard(card)"-->
+                    <span class="inline-block glyphicon glyphicon-remove link" style="color:red" (click)="deleteCard(card)"></span><!---->
                 </card>
             </li>
         </ul>
     </div>
 
-    <ng-container *ngIf="existSub" class="">
+    <ng-container *ngIf="existSub && subcardlists" class="">
         <div *ngFor="let subcardlist of subcardlists" dnd-droppable
              [allowDrop]="allowDropFunction()"
              (onDropSuccess)="cardDropped2($event, subcardlist)">
@@ -46,11 +46,11 @@
                     <span class="inline listTitle">
                         &nbsp;{{subcardlist.name}}
                     </span>
-                    <button type="button" class="btn btn-default btn-xs inline" (click)="showAddCard(subcardlist.$key)">
+                    <button type="button" class="btn btn-default btn-xs inline" (click)="showAddCard(subcardlist.Id)">
                         <i class="fa fa-plus"></i>
                     </button>
                 </div>
-                <a style="float:right; color:black" class="fa fa-trash" ></a><!--(click)="deleteSublist(subcardlist)"-->
+                <a style="float:right; color:black" class="fa fa-trash" (click)="deleteSublist(subcardlist)"></a><!--"-->
 
             </div>
             <div *ngIf="subcardlist.isExpanded && cardsSub">
@@ -61,7 +61,7 @@
                             [dragData]="card"
                             [dragEnabled]="allowDragFunction(card)">
                             <card [item]="card">
-                                <span class="inline-block glyphicon glyphicon-remove link" style="color:red" ></span><!--(click)="deleteCard(card)"-->
+                                <span class="inline-block glyphicon glyphicon-remove link" style="color:red" (click)="deleteCard(card)"></span><!---->
                             </card>
                         </li>
  
@@ -92,7 +92,7 @@
             <!--<input type="text" class="form-control" id="taskdescription" placeholder="description" [(ngModel)]="carddescription">-->
         </div>
         <div class="text-center">
-            <button type="button" class="btn btn-primary" (click)="saveAddCard(fatherIdCard)">CREATE</button><!--(click)="saveAddCard(fatherIdCard)"-->
+            <button type="button" class="btn btn-primary" (click)="saveAddCard()">CREATE</button><!--(click)="saveAddCard(fatherIdCard)"-->
         </div>
     </div>
 </div>
@@ -114,7 +114,7 @@
             <input type="text" class="form-control" id="taskname" placeholder="task name" [(ngModel)]="subcardlistname">
         </div>
         <div class="text-center">
-            <button type="button" class="btn btn-primary" >CREATE</button><!--(click)="saveAddSubCardList(fatherIdCard)"-->
+            <button type="button" class="btn btn-primary" (click)="saveAddSubCardList()">CREATE</button><!---->
         </div>
     </div>
 </div>

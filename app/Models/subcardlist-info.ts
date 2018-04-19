@@ -2,7 +2,7 @@
     Id?: number;
     name?: string;
     cardlistId?: number;
-    isExpanded?: string;
+    isExpanded?: boolean;
     orders?: number;
     created_at?: string;
 }

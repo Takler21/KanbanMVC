@@ -1,6 +1,6 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 import { NgFor, NgIf } from "@angular/common";
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { CardList } from "../models/cardlist-info";
 import { SubCardList } from "../models/subcardlist-info";
 import { Card } from "../models/card-info";
@@ -12,10 +12,11 @@ import { UserService } from "../Service/user.service"
 @Component({
     selector: 'cardlist',
     templateUrl: 'app/Components/cardlist.component.html',
-    styleUrls: ['app/Styles/cardlist.component.css']
+    styleUrls: ['app/Styles/cardlist.component.css'],
 })
 export class CardListComponent implements OnInit {
     @Input() item: CardList;
+    dropUpdate: EventEmitter<boolean> = new EventEmitter();
     msg: any;
     existSub: boolean;
     cardlistEmpty: boolean = true;
@@ -32,7 +33,7 @@ export class CardListComponent implements OnInit {
 
     cardname: any;
     carddescription: any;
-    allowedDropFrom: any = [];
+    allowedDropFrom: any[] = [];
     allowedDragTo = false;
     allowDropParent: any = [];
 
@@ -59,7 +60,7 @@ export class CardListComponent implements OnInit {
                 this.dropping();
             })
     }
-        dropping(){
+    dropping() {
         //fill allowed drop-from containers
 
         //Usar item para el id del proyecto, con el que sacar 
@@ -93,7 +94,7 @@ export class CardListComponent implements OnInit {
                             sublist.forEach((sub: SubCardList) => {
                                 this.allowedDropFrom.push(sub.Id);
                                 this.allowDropParent[sub.Id] = 's';
-                                console.log("Sub permitidos de"+this.item.name+": "+ sub.Id)
+                                console.log("Sub permitidos de" + this.item.name + ": " + sub.Id)
                             })
                     },
                     error => this.msg = error,
@@ -148,14 +149,101 @@ export class CardListComponent implements OnInit {
                     this.cardsSub[sub.name] = (cards.filter((cards: Card) => cards.cardListId == sub.Id));
                     this.cardsSub[sub.name] = this.cardsSub[sub.name].filter((cards: Card) => cards.parent == 's');
                 })
-                console.log("cartas 2: " + Object.keys(this.cardsSub)); 
+                console.log("cartas 2: " + Object.keys(this.cardsSub));
             })
 
     }
 
+    deleteCard(card: Card) {
+        var tasks: Task[];
+
+        this._userService.get(Global.BASE_TASKS_ENDPOINT)
+            .subscribe(c => {
+                tasks = c.filter((task: Task) => task.cardId == card.Id);
+                if (tasks.length < 1) {
+                    this._userService.delete(Global.BASE_CARDS_ENDPOINT, card.Id).subscribe(() => {
+                        if (!this.existSub) {
+                            this.loadCards();
+                        }
+                        else {
+                            this.loadCardsSub();
+                        }
+                    });
+                }
+                else {
+                    tasks.forEach(tk =>
+                        this._userService.delete(Global.BASE_TASKS_ENDPOINT, tk.Id).subscribe(
+                            () => {
+                                console.log(tasks + ", Antes, vacio?" + (tasks.length < 1));
+                                tasks.splice(tasks.findIndex(x => x.Id == tk.Id), 1)
+                                console.log(tasks + ", Despues vacio?" + (tasks.length < 1));
+                                if (tasks.length < 1) {
+                                    this._userService.delete(Global.BASE_CARDS_ENDPOINT, card.Id).subscribe(() => {
+                                        if (!this.existSub) {
+                                            this.loadCards();
+                                        }
+                                        else {
+                                            this.loadCardsSub();
+                                        }
+                                    });
+                                }
+
+                            })
+                    );
+                }
+            });
+
+    }
+
+    deleteSublist(subcardlist: SubCardList) {
+        let sublistBigger: SubCardList[]
+        let vacio: boolean;
+        vacio = this.cardsSub.filter((card: Card) => card.cardListId == subcardlist.Id).length < 1
+        if (vacio) {
+            this._userService.delete(Global.BASE_SUBCARDLIST_ENDPOINT, subcardlist.Id)
+                .subscribe(data => {
+                    sublistBigger = this.subcardlists.filter((subcardl: SubCardList) => subcardl.orders > subcardlist.orders)
+                    console.log(sublistBigger);
+                    sublistBigger.forEach(sub => {
+                        sub.orders = sub.orders - 1;
+                        this._userService.put(Global.BASE_SUBCARDLIST_ENDPOINT, sub.Id, sub)
+                            .subscribe()
+                    });
+                },
+                error => { this.msg = error; console.log(this.msg) },
+                () => {
+                    this._userService.get(Global.BASE_SUBCARDLIST_ENDPOINT)
+                        .subscribe(s =>
+                            this.subcardlists = s.filter((subcardlist: any) => subcardlist.cardlistId == this.item.Id),
+                        error => this.msg = error,
+                        () => {
+                            this.loadCardsSub()
+                        })
+                })
+        }
+    }
+
     clickCarret(subcardlist: any) {
         subcardlist.isExpanded = !subcardlist.isExpanded;
-        this._userService.put(Global.BASE_SUBCARDLIST_ENDPOINT, subcardlist.Id, subcardlist);
+        this._userService.put(Global.BASE_SUBCARDLIST_ENDPOINT, subcardlist.Id, subcardlist).subscribe(
+            data => {
+                if (data == 1) //Success
+                {
+                    this.msg = "Se encogio Correctamente.";
+
+                }
+                else {
+                    this.msg = "No Se encogio Correctamente."
+                }
+            },
+            error => {
+                this.msg = error;
+            },
+            () => {
+                console.log(this.msg + " Sub car");
+
+            }
+        );
     }
 
     allowDragFunction(card: Card) {
@@ -168,7 +256,7 @@ export class CardListComponent implements OnInit {
         };
     }
 
-    cardDropped(ev:any) {
+    cardDropped(ev: any) {
         let card: Card = ev.dragData;
         console.log("Entra");
         if (card.parent == this.allowDropParent[card.cardListId]) {
@@ -179,7 +267,7 @@ export class CardListComponent implements OnInit {
                     if (data == 1) //Success
                     {
                         this.msg = "El departamento se ha actualizado exitosamente.";
-                        
+
                     }
                     else {
                         this.msg = "Hay problemas para guardar los datos!"
@@ -189,18 +277,25 @@ export class CardListComponent implements OnInit {
                     this.msg = error;
                 },
                 () => {
-                    
-                    this.loadCards();
-                    this.loadCardsSub();
-                    console.log(this.msg)
+
+                    if (!this.existSub) {
+                        this.loadCards();
+                    }
+                    else {
+                        this.loadCardsSub();
+                    }
+                    console.log(this.msg + " Chaca Chaca");
+                    this._userService.syncro.next(true);
                 }
             );
 
         }
     }
     //Permite el cambiar de sublista en el mismo cardlist
-    cardDropped2(ev:any, subcardlist: SubCardList) {
+    cardDropped2(ev: any, subcardlist: SubCardList) {
         let card: Card = ev.dragData;
+        var cardAux = [{ Id: card.cardListId, parent: card.parent }];
+
         if (card.parent == this.allowDropParent[card.cardListId]) {
             card.cardListId = subcardlist.Id;
             card.parent = 's';
@@ -210,7 +305,7 @@ export class CardListComponent implements OnInit {
                     if (data == 1) //Success
                     {
                         this.msg = "El departamento se ha actualizado exitosamente.";
-                        
+
                     }
                     else {
                         this.msg = "Hay problemas para guardar los datos!"
@@ -220,16 +315,25 @@ export class CardListComponent implements OnInit {
                     this.msg = error;
                 },
                 () => {
-                    this.loadCards();
-                    this.loadCardsSub()
-                console.log(this.msg)}
+                  
+                    console.log(this.subcardlists.findIndex(x => x.Id == 2) + "Qui estoy")
+                    if (this.subcardlists.findIndex(x => x.Id == cardAux[0].Id) < 0) {
+                        this._userService.syncro.next(true);
+                    }
+                    //Creo que es inecesario y cada uno usara unos de los load Usando este el sub
+                    if (!this.existSub) {
+                        this.loadCards();
+                    }
+                    else {
+                        this.loadCardsSub();
+                    }
+                    console.log(this.msg + " ::__:: El 2")
+                }
             );
-            
         }
-     
     }
 
-    showAddCard(id: number, parentPar:string) {
+    showAddCard(id: number) {
         this.cardname = '';
         this.carddescription = '';
         this.toShowAddCard = true;
@@ -238,6 +342,19 @@ export class CardListComponent implements OnInit {
             this.typeparent = 's';
         else
             this.typeparent = 'c';
+    }
+
+    saveAddCard() {
+        //console.log('save card');
+        this._userService.post(Global.BASE_CARDS_ENDPOINT, { name: this.cardname, description: this.carddescription, cardListId: this.fatherIdCard, parent: this.typeparent, isExpanded: true, orders: 0, created_at: "Hoy" })
+            .subscribe(() => {
+                if (!this.existSub) {
+                    this.loadCards();
+                }
+                else {
+                    this.loadCardsSub();
+                }
+            })
     }
 
     cancelAddCard() {
@@ -249,7 +366,26 @@ export class CardListComponent implements OnInit {
         this.toShowAddSubCardList = true;
     }
 
+    saveAddSubCardList() {
+        let created_at = 'Hoy';
+        let newSubCardList: SubCardList = new SubCardList();
+        newSubCardList.created_at = created_at;
+        newSubCardList.isExpanded = true;
+        this._userService.post(Global.BASE_SUBCARDLIST_ENDPOINT, { name: this.subcardlistname, cardlistId: this.item.Id, isExpanded: true, orders: this.subcardlists.length, created_at: 'hoy' }).subscribe(() => {
+            this._userService.get(Global.BASE_SUBCARDLIST_ENDPOINT)
+                .subscribe(
+                s => {
+                    //filter aqui.
+                    this.subcardlists = s.filter((subcardlist: any) => subcardlist.cardlistId == this.item.Id);//resultado del filtrado
+                    this.existSub = (this.subcardlists.length != 0);
+                },
+                error => this.msg = error,
+                () => this.loadCardsSub());
+        });
+    }
+
     cancelAddSubCardList() {
         this.toShowAddSubCardList = false;
     }
+
 }
